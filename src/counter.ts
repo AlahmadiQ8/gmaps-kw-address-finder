@@ -1,8 +1,102 @@
-export async function setupCounter(long: number, lat: number) {
-  // navigator.geolocation.getCurrentPosition(position => {
-  //   console.log(position.coords.latitude)
-  //   console.log(position.coords.longitude)
-  // })
-  const res = await fetch('https://kfappsrv.paci.gov.kw/kuwaitfinder/server/api/search/identify?params=JNTH7hVI%2BuLjw8cKOTjVKY989P%2FeozxhItA8DCVJ7YOLnbXzccIfzIG2OLxrsRbIqD5DFyxnNIui0nN8DS0V3WOOZv8GoLe0McXdrHCFGIUKU1sew1wm89l6xk6qwqmTMRIocfAH5IAbtTBBtN7TigaLO0VwT25Ja8bacRF7UpjFRbipqQF5I1oTX5WhaBUIb%2F2em%2FXomb009g8EQrkTc7nSbm%2FrfY%2FS%2B5K8wF7EJRDsZWhOK4YePBctCZhkdgtNGb8BMYwLeWy%2FlGigEBsldD2iRbgIiZ%2F0H686lMMk87z4HmmZbhx3inJNziRjDPKX2jNyE5gig%2FS5dIGTEVYBVKBU%2BWUkqz%2Fvm2JwzgB%2FuxqkeK3gwLHnB9RZyLdOFpr5Yg4ZeExIUtm9Nqt9kSGJ6bisN1PekPC8TsZoAMiE9PQeDW3kUhGyDF3PTttzsUEH9fQQEAOi2MCqxKtbAhXQX1f5E3Qng0OKkf%2BUrM1Cd2ONquBDCpPK7F%2FkxCuzseHXzqbCM01eH02uW%2F4bhQHe1tBYAtnatYFgs76VT%2BeAMzVLVfijeMgab%2FvWcPZ%2Bw75j4%2F6bH6EaqiP5ME0idv4isHiKI4GRl1rOeYH22hqcr%2F6qPiEEBw%2FDGy3e22H0wC%2F3yO0jY80jSD6P1tUfWrDJtnKpkHQSucM4vyHO%2BKMDsDbRjRD77X0V%2BXBmNfkJ2Mpb9gwG4KpOXl0%3D')
+import { detect } from "detect-browser"
+import CryptoJS from "crypto-js"
+
+const ENCRYPTION_KEY = "should be 24 characters."
+
+export async function setupCounter(long: number, lat: number, language: Language) {
+  const paciRequestQueryParam: PaciSearchByLongLatRequest = {
+    x: long,
+    y: lat,
+    maplevel: null,
+    mapscale: 2256.994353,
+    xmin: long - 0.1,
+    ymin: lat - 0.1,
+    xmax: long + 0.1,
+    ymax: lat + 0.1,
+    language,
+    currentlocationx: null,
+    currentlocationy: null,
+    userid: null,
+    username: null,
+    userlogintype: null,
+    callerid: await getClientIp(),
+    callertype: detect()?.name || "",
+    callerversion: "undefined",
+    calleros: navigator.userAgent,
+    requesttime: toIsoStringWithTimezoneOffset(new Date())
+  }
+  const searchParams = buildQueryParams(paciRequestQueryParam)
+  const encrypted = CryptoJS.TripleDES.encrypt(searchParams, CryptoJS.enc.Utf8.parse(ENCRYPTION_KEY), {
+    mode: CryptoJS.mode.ECB,
+    padding: CryptoJS.pad.Pkcs7
+  }).toString()
+
+  const res = await fetch(`https://kfappsrv.paci.gov.kw/kuwaitfinder/server/api/search/identify?params=${encodeURIComponent(encrypted)}`)
   console.log(await res.json())
+
+  // navigator.geolocation.getCurrentPosition(async position => {
+  // console.log("y = " + position.coords.latitude)
+  // console.log("x = " + position.coords.longitude)
+  // })
+}
+
+async function getClientIp(): Promise<string> {
+  const response = await fetch('https://api.ipify.org/?format=json')
+  const jsonResponse = (await response.json()) as { ip: string }
+  return jsonResponse.ip
+}
+
+interface PaciSearchByLongLatRequest {
+  x: number,
+  y: number,
+  maplevel: null
+  mapscale: number
+  xmin: number
+  ymin: number
+  xmax: number
+  ymax: number
+  language: Language
+  currentlocationx: null
+  currentlocationy: null
+  userid?: null
+  username?: null
+  userlogintype?: null
+  callerid: string
+  callertype: string
+  callerversion: string
+  calleros: string
+  requesttime: string
+}
+
+
+export const enum Language {
+  EN = 'en',
+  AR = 'ar'
+}
+
+// https://stackoverflow.com/a/17415677/5431968
+function toIsoStringWithTimezoneOffset(date: Date) {
+  const tzo = -date.getTimezoneOffset(),
+    dif = tzo >= 0 ? '+' : '-',
+    pad = function (num: number) {
+      return (num < 10 ? '0' : '') + num;
+    };
+
+  return date.getFullYear() +
+    '-' + pad(date.getMonth() + 1) +
+    '-' + pad(date.getDate()) +
+    'T' + pad(date.getHours()) +
+    ':' + pad(date.getMinutes()) +
+    ':' + pad(date.getSeconds()) +
+    dif + pad(Math.floor(Math.abs(tzo) / 60)) +
+    ':' + pad(Math.abs(tzo) % 60);
+}
+
+function buildQueryParams(paciRequestQueryParam: PaciSearchByLongLatRequest): string {
+  const record: Record<string, string> = {}
+  for (const [key, value] of Object.entries(paciRequestQueryParam)) {
+    record[key] = value?.toString() || ''
+  }
+  const params = new URLSearchParams(record)
+  return params.toString()
 }

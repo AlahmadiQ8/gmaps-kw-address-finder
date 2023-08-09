@@ -1,6 +1,6 @@
 import './style.css'
 
-import { setupCounter } from './counter.ts'
+import { Language, setupCounter } from './counter.ts'
 
 const temp = document.querySelector<HTMLButtonElement>('#counter')!
-await setupCounter(12, 21)
+await setupCounter(48.100216, 29.215362, Language.AR)
