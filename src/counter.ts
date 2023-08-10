@@ -32,7 +32,7 @@ export async function setupCounter(long: number, lat: number, language: Language
   }).toString()
 
   const res = await fetch(`https://kfappsrv.paci.gov.kw/kuwaitfinder/server/api/search/identify?params=${encodeURIComponent(encrypted)}`)
-  console.log(await res.json())
+  return await res.json()
 
   // navigator.geolocation.getCurrentPosition(async position => {
   // console.log("y = " + position.coords.latitude)
