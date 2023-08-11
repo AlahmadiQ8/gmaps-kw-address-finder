@@ -35,6 +35,19 @@ async function initMap(): Promise<void> {
         infoWindow.setContent(buildHtml2(`Something went wrong`));
       } else {
         infoWindow.setContent(buildHtml2(res.Result[0].DetailsEnglish));
+        document.querySelector('#governorate')!.textContent = res.Result[0].GovernorateEnglish
+        document.querySelector('#city')!.textContent = res.Result[0].NeighborhoodEnglish
+        document.querySelector('#block')!.textContent = res.Result[0].BlockEnglish
+        document.querySelector('#street')!.textContent = res.Result[0].StreetEnglish
+        document.querySelector('#house')!.textContent = res.Result[0].HouseEnglish
+        document.querySelector('#parcel')!.textContent = res.Result[0].ParcelEnglish
+        document.querySelector('#governorate-ar')!.textContent = res.Result[0].GovernorateArabic
+        document.querySelector('#city-ar')!.textContent = res.Result[0].NeighborhoodArabic
+        document.querySelector('#block-ar')!.textContent = res.Result[0].BlockArabic
+        document.querySelector('#street-ar')!.textContent = res.Result[0].StreetArabic
+        document.querySelector('#house-ar')!.textContent = res.Result[0].HouseArabic
+        document.querySelector('#parcel-ar')!.textContent = res.Result[0].ParcelArabic
+        console.log(res.Result[0])
       }
       infoWindow.open(draggableMarker.map, draggableMarker);
     });
@@ -50,7 +63,7 @@ initMap()
 
 function buildHtml2(text: string) {
   const el = document.createElement('div');
-  el.className = "text-black"
+  el.className = "text-black font-bold"
   el.textContent = text
   return el
 }
