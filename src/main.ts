@@ -1,9 +1,9 @@
 import './style.css'
 
-import { Language, setupCounter } from './counter.ts'
+import { Language, getPaciData } from './get-paci-data.ts'
 import { PaciResult } from './paci-result.ts';
 
-async function initMap(): Promise<void> {
+async function main(): Promise<void> {
   const { Map, InfoWindow } = await google.maps.importLibrary("maps") as google.maps.MapsLibrary;
   const { AdvancedMarkerElement } = await google.maps.importLibrary("marker") as google.maps.MarkerLibrary;
   navigator.geolocation.getCurrentPosition(async pos => {
@@ -20,21 +20,20 @@ async function initMap(): Promise<void> {
       map: map,
       position,
       title: 'Uluru',
-      // content: buildHtml(position),
       gmpDraggable: true
     });
 
     infoWindow.open(draggableMarker.map, draggableMarker);
-    infoWindow.setContent(buildHtml2(`Drag me`));
+    infoWindow.setContent(buildPinPopupContent(`Drag me`));
 
     draggableMarker.addListener('dragend', async () => {
       const newPosition = draggableMarker.position as google.maps.LatLngLiteral;
       infoWindow.close();
-      const res = await setupCounter(newPosition.lng, newPosition.lat, Language.EN) as PaciResult
+      const res = await getPaciData(newPosition.lng, newPosition.lat, Language.EN) as PaciResult
       if (res.Error != null) {
-        infoWindow.setContent(buildHtml2(`Something went wrong`));
+        infoWindow.setContent(buildPinPopupContent(`Something went wrong`));
       } else {
-        infoWindow.setContent(buildHtml2(res.Result[0].DetailsEnglish));
+        infoWindow.setContent(buildPinPopupContent(res.Result[0].DetailsEnglish));
         document.querySelector('#governorate')!.textContent = res.Result[0].GovernorateEnglish
         document.querySelector('#city')!.textContent = res.Result[0].NeighborhoodEnglish
         document.querySelector('#block')!.textContent = res.Result[0].BlockEnglish
@@ -52,16 +51,16 @@ async function initMap(): Promise<void> {
       infoWindow.open(draggableMarker.map, draggableMarker);
     });
 
-    const res = await setupCounter(position.lng, position.lat, Language.EN) as PaciResult
+    const res = await getPaciData(position.lng, position.lat, Language.EN) as PaciResult
     console.log(res)
   })
 }
 
-initMap()
+main()
 
 
 
-function buildHtml2(text: string) {
+function buildPinPopupContent(text: string) {
   const el = document.createElement('div');
   el.className = "text-black font-bold"
   el.textContent = text

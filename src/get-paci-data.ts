@@ -3,7 +3,7 @@ import CryptoJS from "crypto-js"
 
 const ENCRYPTION_KEY = "should be 24 characters."
 
-export async function setupCounter(long: number, lat: number, language: Language) {
+export async function getPaciData(long: number, lat: number, language: Language) {
   const paciRequestQueryParam: PaciSearchByLongLatRequest = {
     x: long,
     y: lat,
@@ -31,13 +31,7 @@ export async function setupCounter(long: number, lat: number, language: Language
     padding: CryptoJS.pad.Pkcs7
   }).toString()
 
-  const res = await fetch(`https://kfappsrv.paci.gov.kw/kuwaitfinder/server/api/search/identify?params=${encodeURIComponent(encrypted)}`)
-  return await res.json()
-
-  // navigator.geolocation.getCurrentPosition(async position => {
-  // console.log("y = " + position.coords.latitude)
-  // console.log("x = " + position.coords.longitude)
-  // })
+  return await fetch(`https://kfappsrv.paci.gov.kw/kuwaitfinder/server/api/search/identify?params=${encodeURIComponent(encrypted)}`).then(r => r.json())
 }
 
 async function getClientIp(): Promise<string> {
@@ -67,7 +61,6 @@ interface PaciSearchByLongLatRequest {
   calleros: string
   requesttime: string
 }
-
 
 export const enum Language {
   EN = 'en',
