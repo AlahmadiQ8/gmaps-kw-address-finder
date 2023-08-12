@@ -1,27 +1,10 @@
-# Experimenting with Kuwait's PACI Unofficial Geolocation REST API to Improve Use Address Extraction with Google Maps
+# Kuwait PACI Unofficial REST API
 
-[Link to Demo](#)
+[Link to Demo with Google Maps](#)
 
-**tldr:** I want to use Google Maps to pin point my location and get my correct address with all required fields for Kuwait addresses, which is what most delivery apps do in Kuwait (deliveroo, talabat). But often times Google Maps returns incorrect data. So I made a demo on how to use Google Maps for user pin pointing and PACI api for extracting correct address info.
+## Get an Address Given a Long/Lat
 
----
-
-Most apps try to both simplify address input and improve address guessing accuracy. In most delivery apps in Kuwait they display Google Maps widget where the user pinpoint their location and the app tries to extract their address based on the pin point. Most of the time it's incorrect.
-
-While Google maps does obtain accurate address data in most countries. That's not true for Kuwait addresses. I don't know why but my guesses are the following:
-
-1. Google Maps may have incomplete data for Kuwait.
-2. Perhaps Kuwait has specific field requirements for addresses that are not supported by Google Maps such as district and block.
-
-Luckily, [Kuwait Finder](https://gis.paci.gov.kw/) has accurate data for Kuwait addresses and provides all necessary address fields. While they do expose maps UI, I'd still prefer to use Google maps: Better UX Experience, better accessibility support, can easily be embedded in web/mobile apps, and has exaustive well documented api.
-
-In this demo, I show a basic example how to Google Maps with Kuwait Finder Inoficcial geolocation APIs.
-
-The demo is actually straightforward:
-1. User pin point their location on Google Maps.
-2. Take the lat/long and send it to PACI to get the full address.
-
-# Kuwait PACI Exposes an Unofficial REST API to Get an Address Given a Long/Lat
+> too lazy to write proper documentation. here is rough draft below on how it works. Or check [src/get-paci-data.ts](src/get-paci-data.ts)
 
 Example request:
 
@@ -29,7 +12,7 @@ https://kfappsrv.paci.gov.kw/kuwaitfinder/server/api/search/identify?params=JNTH
 
 How to construct `params` query parameter:
 
-## 1. Build the query parameters
+### 1. Build the query parameters
 
 Below is an example I got from Chrome Dev tools when you visit https://gis.paci.gov.kw/Location/48.100216/29.215362
 
@@ -55,19 +38,21 @@ x=48.100216
 &requesttime=2023-08-09T22%3A09%3A50%2B03%3A00
 ```
 
-## 2. Encrypt the Query Parameters
+### 2. Encrypt the Query Parameters
 
 You can find out how it's encrypted also from Chrome Dev tools.
 
 ![Alt text](assets/image.png))
 
-## 3. Encode Encrypted Query Parameters for URI
+### 3. Encode Encrypted Query Parameters for URI
 
 use `encodeURIComponent` to encode the encrypted data
 
-## 4. Fetch from PACI
+### 4. Fetch from PACI
 
 ```javascript
+const queryParams = 'x=48.100216&y=29.215362&maplevel=....'
+const encryptedQueryParams = tripleDESEncryption(queryParams, ENCRYPTION_KEY)
 const encoded = encodeURIComponent(encryptedQueryParams)
 const result = await fetch(`https://kfappsrv.paci.gov.kw/kuwaitfinder/server/api/search/identify?params=${encoded}`)
 ```
