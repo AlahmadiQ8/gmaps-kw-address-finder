@@ -4,7 +4,7 @@
 
 ## Get an Address Given a Long/Lat
 
-> too lazy to write proper documentation. here is rough draft below on how it works. Or check [src/get-paci-data.ts](src/get-paci-data.ts)
+*Check [src/get-paci-data.ts](src/get-paci-data.ts) for demo usage*
 
 Example request:
 
