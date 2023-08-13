@@ -37,11 +37,11 @@ export async function getPaciData(long: number, lat: number, language: Language)
   return await fetch(`https://kfappsrv.paci.gov.kw/kuwaitfinder/server/api/search/identify?params=${encodeURIComponent(encrypted)}`).then(r => r.json())
 }
 
-async function getClientIp(): Promise<string> {
-  const response = await fetch('https://api.ipify.org/?format=json')
-  const jsonResponse = (await response.json()) as { ip: string }
-  return jsonResponse.ip
-}
+// async function getClientIp(): Promise<string> {
+//   const response = await fetch('https://api.ipify.org/?format=json')
+//   const jsonResponse = (await response.json()) as { ip: string }
+//   return jsonResponse.ip
+// }
 
 interface PaciSearchByLongLatRequest {
   x: number,
