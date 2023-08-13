@@ -4,6 +4,13 @@ import CryptoJS from "crypto-js"
 const ENCRYPTION_KEY = "should be 24 characters."
 
 export async function getPaciData(long: number, lat: number, language: Language) {
+  let callerid: string;
+  try {
+    callerid = await getClientIp()
+  catch (e) {
+    callerid = '178.61.224.228'
+  }
+  
   const paciRequestQueryParam: PaciSearchByLongLatRequest = {
     x: long,
     y: lat,
@@ -19,7 +26,7 @@ export async function getPaciData(long: number, lat: number, language: Language)
     userid: null,
     username: null,
     userlogintype: null,
-    callerid: await getClientIp(),
+    callerid,
     callertype: detect()?.name || "",
     callerversion: "undefined",
     calleros: navigator.userAgent,
