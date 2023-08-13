@@ -7,7 +7,7 @@ export async function getPaciData(long: number, lat: number, language: Language)
   let callerid: string;
   try {
     callerid = await getClientIp()
-  catch (e) {
+  } catch (e) {
     callerid = '178.61.224.228'
   }
   
